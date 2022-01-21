@@ -44,6 +44,10 @@ func! s:BeforeAndAfter()
     return [before, after]
 endf
 
+func! s:CurrentPos()
+    return [getline('.'), col('.') - 1]
+endf
+
 "--------------------: Main Function :--------------------
 
 " pairs don't expand when after is either alphabet, number, underscore ( default)
@@ -51,10 +55,13 @@ endf
 
 func! g:AutoPairInsert(key)
     let [before, after] = s:BeforeAndAfter()
+    let [line, pos] = s:CurrentPos()
     if (a:key == "'" || a:key == '"' || a:key == "`")
         " skip the quotes
         if (before == '\')
             return a:key
+        elseif (line[pos-2:pos-1] == repeat(a:key,2))
+            return repeat(a:key,4)."\<ESC>2hi" 
         elseif (after == g:AutoPairs[a:key])
             return "\<Right>"
         elseif (after =~ g:AutoPairCheck || before =~ g:AutoPairCheck)
@@ -97,7 +104,7 @@ func! g:AutoPairReturn()
     endif
 
     let [before, after] = s:BeforeAndAfter()
-    if (has_key(g:AutoPairs,before) && g:AutoPairs[before] == after && ( before == "{" || before == "(" || before == "["))
+    if (has_key(g:AutoPairs,before) && g:AutoPairs[before] == after)
         return "\<CR>\<ESC>=ko"
     endif
 

@@ -9,8 +9,8 @@ let g:loaded_autopair = 1
 
 "--------------: Setting Global Variables :---------------
 
-if !exists("g:autopairs")
-    let g:autopairs = { 
+if !exists("g:AutoPairs")
+    let g:AutoPairs = { 
         \ "{" : "}",
         \ "[" : "]",
         \ "(" : ")",
@@ -26,18 +26,32 @@ endif
 
 "--------------------: Utils Function :-------------------
 
+func! s:BeforeAndAfter()
+    let row = getline('.')
+    let pos = col('.') - 1
+
+    let before = row[pos-1]
+    let after = row[pos]
+
+    return [before, after]
+endf
 
 "--------------------: Main Function :--------------------
 
-function! g:AutoPairDelete()
+func! g:AutoPairDelete()
     if !b:enable_autopair
         return "\<BS>"
     endif
 
-    return "\<BS>"
-endfunction
+    let [before, after] = s:BeforeAndAfter()
+    if (has_key(g:AutoPairs,before) && g:AutoPairs[before] == after)
+        return "\<BS>\<DELETE>"
+    endif
 
-function! g:LoadAutoPair()
+    return "\<BS>"
+endf
+
+func! g:AutoPairLoad()
     if exists("b:enable_autopair")
         return
     endif
@@ -46,6 +60,6 @@ function! g:LoadAutoPair()
     if g:AutoPairMapBS
         execute 'inoremap <buffer> <silent> <BS> <C-R>=AutoPairDelete()<CR>'
     endif
-endfunction
+endf
 
-autocmd BufEnter * :call LoadAutoPair()
+autocmd BufEnter * :call AutoPairLoad()

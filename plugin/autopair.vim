@@ -42,6 +42,27 @@ endf
 
 "--------------------: Main Function :--------------------
 
+func! g:AutoPairInsert(key)
+    " Skip quotes if it's already present after.
+    if (a:key == "'" || a:key == '"' || a:key == "`")
+        let [before, after] = s:BeforeAndAfter()
+        if (after == g:AutoPairs[a:key])
+            return "\<Right>"
+        endif
+    endif
+
+    return a:key.g:AutoPairs[a:key]."\<ESC>i"
+endf
+
+func! g:AutoPairSkip(key)
+    let [before, after] = s:BeforeAndAfter()
+    if (after == a:key)
+        return "\<Right>"
+    endif
+
+    return a:key
+endf
+
 func! g:AutoPairDelete()
     if !b:enable_autopair
         return "\<BS>"
@@ -68,11 +89,30 @@ func! g:AutoPairReturn()
     return "\<CR>"
 endf
 
+func! g:AutoPairMapPairs()
+    if !b:enable_autopair
+        return
+    endif
+
+    for key in keys(g:AutoPairs)
+        " To avoid the collision of single-quotes 
+        let correct_key = substitute(key,"'","''",'g')
+        execute 'inoremap <buffer> <silent> '.key." <C-R>=AutoPairInsert('".correct_key."')<CR>"
+    endfor
+
+    for value in values(g:AutoPairs)
+        if (value == '}' || value == ')' || value == ']')
+            execute 'inoremap <buffer> <silent> '.value." <C-R>=AutoPairSkip('".value."')<CR>"
+        endif
+    endfor
+endf
+
 func! g:AutoPairLoad()
     if exists("b:enable_autopair")
         return
     endif
     let b:enable_autopair = 1
+    call g:AutoPairMapPairs()
 
     if g:AutoPairMapBS
         execute 'inoremap <buffer> <silent> <BS> <C-R>=AutoPairDelete()<CR>'

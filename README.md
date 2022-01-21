@@ -1,6 +1,6 @@
 # vim-autopair
 
-The simplest implementation of the auto completing quotes and brackets.
+The simplest implementation of auto completing quotes and brackets.
 
 ## Installation
 

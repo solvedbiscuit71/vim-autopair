@@ -53,7 +53,9 @@ func! g:AutoPairInsert(key)
     let [before, after] = s:BeforeAndAfter()
     if (a:key == "'" || a:key == '"' || a:key == "`")
         " skip the quotes
-        if (after == g:AutoPairs[a:key])
+        if (before == '\')
+            return a:key
+        elseif (after == g:AutoPairs[a:key])
             return "\<Right>"
         elseif (after =~ g:AutoPairCheck || before =~ g:AutoPairCheck)
             return a:key

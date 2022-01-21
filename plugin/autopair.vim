@@ -24,6 +24,10 @@ if !exists("g:AutoPairMapBS")
     let g:AutoPairMapBS = 1
 endif
 
+if !exists("g:AutoPairMapCR")
+    let g:AutoPairMapCR = 1
+endif
+
 "--------------------: Utils Function :-------------------
 
 func! s:BeforeAndAfter()
@@ -51,6 +55,19 @@ func! g:AutoPairDelete()
     return "\<BS>"
 endf
 
+func! g:AutoPairReturn()
+    if !b:enable_autopair
+        return "\<CR>"
+    endif
+
+    let [before, after] = s:BeforeAndAfter()
+    if (has_key(g:AutoPairs,before) && g:AutoPairs[before] == after && ( before == "{" || before == "(" || before == "["))
+        return "\<CR>\<ESC>=ko"
+    endif
+
+    return "\<CR>"
+endf
+
 func! g:AutoPairLoad()
     if exists("b:enable_autopair")
         return
@@ -59,6 +76,10 @@ func! g:AutoPairLoad()
 
     if g:AutoPairMapBS
         execute 'inoremap <buffer> <silent> <BS> <C-R>=AutoPairDelete()<CR>'
+    endif
+
+    if g:AutoPairMapCR
+        execute 'inoremap <buffer> <silent> <CR> <C-R>=AutoPairReturn()<CR>'
     endif
 endf
 

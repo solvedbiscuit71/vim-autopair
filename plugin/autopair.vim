@@ -1,4 +1,4 @@
-" Vim autopair is the ultimate solution for closing the pairs
+" vim-autopair is the simplest implementation of auto completing quotes and brackets
 " Maintainer: Praveen Perumal <solvedbiscuit71>
 " Repository: https://github.com/solvedbiscuit71/vim-autopair
 
@@ -28,6 +28,10 @@ if !exists("g:AutoPairMapCR")
     let g:AutoPairMapCR = 1
 endif
 
+if !exists("g:AutoPairCheck")
+    let g:AutoPairCheck = "[A-Za-z0-9_]"
+endif
+
 "--------------------: Utils Function :-------------------
 
 func! s:BeforeAndAfter()
@@ -42,12 +46,21 @@ endf
 
 "--------------------: Main Function :--------------------
 
+" pairs don't expand when after is either alphabet, number, underscore ( default)
+" for quotes the same holds for before. whereas brackets is not.
+
 func! g:AutoPairInsert(key)
-    " Skip quotes if it's already present after.
+    let [before, after] = s:BeforeAndAfter()
     if (a:key == "'" || a:key == '"' || a:key == "`")
-        let [before, after] = s:BeforeAndAfter()
+        " skip the quotes
         if (after == g:AutoPairs[a:key])
             return "\<Right>"
+        elseif (after =~ g:AutoPairCheck || before =~ g:AutoPairCheck)
+            return a:key
+        endif
+    else
+        if (after =~ g:AutoPairCheck)
+            return a:key
         endif
     endif
 

@@ -152,7 +152,7 @@ func! g:AutoPairReturn()
         return "\<CR>\<ESC>=ko"
     endif
 
-    if (b:enable_tags && before == ">" && after == "<")
+    if (exists("b:enable_tags") && before == ">" && after == "<")
         return "\<CR>\<ESC>=ko"
     endif
 

@@ -77,7 +77,13 @@ foo(){
         Check if the before and after character of the cursor doesn't
         match with the g:AutoPairCheck before expanding the pairs
         
-#### Credits
+### Support for html tags
 
-This plugin is highly inspired by [jiangmiao's auto-pairs](https://github.com/jiangmiao/auto-pairs) 
-for code references.
+This plugin also supports auto completion for html tags which currently works only in `*.html` files.
+
+- g:AutoPairEnableTags
+    
+        Default: 1
+
+        Map '>' to trigger a function to auto complete the closing tags.
+        Set to 0 to disable

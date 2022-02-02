@@ -162,7 +162,7 @@ func! g:AutoPairInsert(key)
   endif
 endf
 
-func! g:AutoPairInsertTag()
+func! g:AutoPairInsertTags()
   let name = s:GetTagName()
   let [before,after] = s:BeforeAndAfter()
   if (before == "/" || name == "" || name[0] == "/" || name[0] == "!")
@@ -172,6 +172,15 @@ func! g:AutoPairInsertTag()
   endif
 
   return ">"
+endf
+
+func! g:AutoPairInsertSlash()
+  let name = s:GetTagName()
+  if (name == "" || name[0] == "/" || name[0] == "!")
+    return "/"
+  else
+    return "/>"
+  endif
 endf
 
 func! g:AutoPairSkip(key)
@@ -249,7 +258,8 @@ func! g:AutoPairLoadTags()
   endif
   let b:enable_tags = 1
 
-  execute 'inoremap <buffer> <silent> > <C-R>=AutoPairInsertTag()<CR>'
+  execute 'inoremap <buffer> <silent> > <C-R>=AutoPairInsertTags()<CR>'
+  execute 'inoremap <buffer> <silent> / <C-R>=AutoPairInsertSlash()<CR>'
 endf
 
 autocmd BufEnter * :call AutoPairLoad()

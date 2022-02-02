@@ -70,12 +70,6 @@ foo(){
         
         Map <BS> to delete the brackets, quotes together if empty
         set to 0 to disable
-- g:AutoPairCheck
-
-        Default: "[A-Za-z0-9_]"
-
-        Check if the before and after character of the cursor doesn't
-        match with the g:AutoPairCheck before expanding the pairs
         
 ### Support for html tags
 

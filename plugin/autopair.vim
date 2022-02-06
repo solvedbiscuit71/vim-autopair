@@ -114,8 +114,8 @@ func! s:IsExpansionValidForBefore(key)
     endif
   endfor
 
-  " Check if it's comma
-  if (a:key == ",")
+  " Check if it's comma, equal
+  if (a:key == "," || a:key == "=")
     return v:true
   endif
 
@@ -176,7 +176,8 @@ endf
 
 func! g:AutoPairInsertSlash()
   let name = s:GetTagName()
-  if (name == "" || name[0] == "/" || name[0] == "!")
+  let [before,after] = s:BeforeAndAfter()
+  if (before == "<" || name == "" || name[0] == "/" || name[0] == "!")
     return "/"
   else
     return "/>"

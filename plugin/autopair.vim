@@ -60,25 +60,27 @@ func! s:BeforeAndAfter()
   return [line[pos-1],line[pos]]
 endf
 
+" GetTagName -> return [tagname, no_of_attributes]
 func! s:GetTagName()
   let [line,pos] = s:CurrentPos()
 
   " Skip if '<' not present in the current line
   if (count(line,"<") == 0)
-    return ''
+    return ['',0]
   endif
 
   " Skip if '>' present in the beforeLine"
   let beforeLine = split(line[0:pos-1],'<')[-1]
   if (count(beforeLine,">") != 0)
-    return ''
+    return ['',0]
   endif
 
-  let name = split('<'.beforeLine,' ')[0]
+  let attributes = split('<'.beforeLine,' ')
+  let name = attributes[0]
   if (name == '<')
-    return ''
+    return ['',0]
   else
-    return split(name,'<')[-1]
+    return [split(name,'<')[-1],len(attributes)-1]
   endif
 endf
 
@@ -174,7 +176,7 @@ func! g:AutoPairInsert(key)
 endf
 
 func! g:AutoPairInsertTags()
-  let name = s:GetTagName()
+  let [name,attributes] = s:GetTagName()
   let [before,after] = s:BeforeAndAfter()
   if (before == "/" || name == "" || name[0] == "/" || name[0] == "!")
     return ">"
@@ -186,9 +188,11 @@ func! g:AutoPairInsertTags()
 endf
 
 func! g:AutoPairInsertSlash()
-  let name = s:GetTagName()
+  let [name,attributes] = s:GetTagName()
   let [before,after] = s:BeforeAndAfter()
-  if (name != "" && (before == " " || before == name[strlen(name) - 1] || before == '"' || before == "'") && (after != '"' || after != "'"))
+  if (name == "")
+    return "/"
+  elseif (((before == name[strlen(name)-1] && attributes == 0)  || before == " " || before == "'" || before == '"' ) && after == "")
     return "/>"
   else
     return "/"

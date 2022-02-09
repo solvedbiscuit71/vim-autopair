@@ -62,14 +62,19 @@ endf
 
 func! s:GetTagName()
   let [line,pos] = s:CurrentPos()
-  let beforeLine = line[0:pos-1]
 
   " Skip if '<' not present in the current line
   if (count(line,"<") == 0)
     return ''
   endif
 
-  let name = split('<'.split(beforeLine,'<')[-1],' ')[0]
+  " Skip if '>' present in the beforeLine"
+  let beforeLine = split(line[0:pos-1],'<')[-1]
+  if (count(beforeLine,">") != 0)
+    return ''
+  endif
+
+  let name = split('<'.beforeLine,' ')[0]
   if (name == '<')
     return ''
   else
@@ -183,7 +188,7 @@ endf
 func! g:AutoPairInsertSlash()
   let name = s:GetTagName()
   let [before,after] = s:BeforeAndAfter()
-  if (name != "" && (before == " " || before == name[strlen(name) - 1] || before == '"') && after != '"')
+  if (name != "" && (before == " " || before == name[strlen(name) - 1] || before == '"' || before == "'") && (after != '"' || after != "'"))
     return "/>"
   else
     return "/"

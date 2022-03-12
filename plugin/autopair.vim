@@ -188,8 +188,12 @@ func! g:AutoPairInsertTags()
 endf
 
 func! g:AutoPairInsertSlash()
-  let [name,attributes] = s:GetTagName()
   let [before,after] = s:BeforeAndAfter()
+  if (before == "<")
+    return "/"
+  endif
+
+  let [name,attributes] = s:GetTagName()
   if (name == "")
     return "/"
   elseif (((before == name[strlen(name)-1] && attributes == 0)  || before == " " || before == "'" || before == '"' ) && after == "")

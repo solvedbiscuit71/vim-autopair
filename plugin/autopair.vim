@@ -9,15 +9,15 @@ let g:loaded_autopair = 1
 
 "--------------: Setting Global Variables :---------------
 
-if !exists("g:AutoPairs")
-  let g:AutoPairs = { 
+if !exists("s:AutoPairs")
+  let s:AutoPairs = {
     \ "brackets" : {"{":"}","(":")","[":"]"},
     \ "quotes" : {"'":"'",'"':'"',"`":"`"}
     \ }
 endif
 
-if !exists("g:VoidTags")
-  let g:VoidTags = [
+if !exists("s:VoidTags")
+  let s:VoidTags = [
     \ "area",
     \ "base",
     \ "br",
@@ -35,18 +35,6 @@ if !exists("g:VoidTags")
     \ "track",
     \ "wbr"
     \ ]
-endif
-
-if !exists("g:AutoPairMapBS")
-  let g:AutoPairMapBS = 1
-endif
-
-if !exists("g:AutoPairMapCR")
-  let g:AutoPairMapCR = 1
-endif
-
-if !exists("g:AutoPairEnableTags")
-  let g:AutoPairEnableTags = 1
 endif
 
 "--------------------: Utils Function :-------------------
@@ -86,14 +74,14 @@ endf
 
 func! s:IsExpansionValidForAfter(key)
   " Check if it's closebracket
-  for close in values(g:AutoPairs.brackets)
+  for close in values(s:AutoPairs.brackets)
     if (a:key == close)
       return v:true
     endif
   endfor
 
   " Check for quotes
-  for quote in keys(g:AutoPairs.quotes)
+  for quote in keys(s:AutoPairs.quotes)
     if (a:key == quote)
       return v:true
     endif
@@ -114,14 +102,14 @@ endf
 
 func! s:IsExpansionValidForBefore(key)
   " Check if it's openbracket
-  for open in keys(g:AutoPairs.brackets)
+  for open in keys(s:AutoPairs.brackets)
     if (a:key == open)
       return v:true
     endif
   endfor
 
   " Check for quotes
-  for quote in keys(g:AutoPairs.quotes)
+  for quote in keys(s:AutoPairs.quotes)
     if (a:key == quote)
       return v:true
     endif
@@ -143,7 +131,7 @@ endf
 func! s:InsertBrackets(key)
   let [before, after] = s:BeforeAndAfter()
   if (s:IsExpansionValidForAfter(after))
-    return a:key.g:AutoPairs["brackets"][a:key]."\<ESC>i"
+    return a:key.s:AutoPairs["brackets"][a:key]."\<ESC>i"
   endif
 
   return a:key
@@ -159,7 +147,7 @@ func! s:InsertQuotes(key)
   elseif (line[pos-2:pos-1] == repeat(a:key,2))
     return repeat(a:key,4)."\<ESC>2hi" 
   elseif (s:IsExpansionValidForBefore(before) && s:IsExpansionValidForAfter(after))
-    return a:key.g:AutoPairs["quotes"][a:key]."\<ESC>i"
+    return a:key.s:AutoPairs["quotes"][a:key]."\<ESC>i"
   endif
 
   return a:key
@@ -167,27 +155,27 @@ endf
 
 "--------------------: Main Function :--------------------
 
-func! g:AutoPairInsert(key)
-  if (has_key(g:AutoPairs.brackets,a:key))
+func! s:AutoPairInsert(key)
+  if (has_key(s:AutoPairs.brackets,a:key))
     return s:InsertBrackets(a:key)
   else
     return s:InsertQuotes(a:key)
   endif
 endf
 
-func! g:AutoPairInsertTags()
+func! s:AutoPairInsertTags()
   let [name,attributes] = s:GetTagName()
   let [before,after] = s:BeforeAndAfter()
   if (before == "/" || name == "" || name[0] == "/" || name[0] == "!")
     return ">"
-  elseif (index(g:VoidTags,name) == -1)
+  elseif (index(s:VoidTags,name) == -1)
     return "></".name.">\<ESC>%i"
   endif
 
   return ">"
 endf
 
-func! g:AutoPairInsertSlash()
+func! s:AutoPairInsertSlash()
   let [before,after] = s:BeforeAndAfter()
   if (before == "<")
     return "/"
@@ -203,7 +191,7 @@ func! g:AutoPairInsertSlash()
   endif
 endf
 
-func! g:AutoPairSkip(key)
+func! s:AutoPairSkip(key)
   let [before, after] = s:BeforeAndAfter()
   if (after == a:key)
     return "\<Right>"
@@ -212,20 +200,20 @@ func! g:AutoPairSkip(key)
   return a:key
 endf
 
-func! g:AutoPairDelete()
+func! s:AutoPairDelete()
   let [before, after] = s:BeforeAndAfter()
-  if (has_key(g:AutoPairs.brackets,before) && g:AutoPairs.brackets[before] == after)
+  if (has_key(s:AutoPairs.brackets,before) && s:AutoPairs.brackets[before] == after)
     return "\<BS>\<DELETE>"
-  elseif (has_key(g:AutoPairs.quotes,before) && g:AutoPairs.quotes[before] == after)
+  elseif (has_key(s:AutoPairs.quotes,before) && s:AutoPairs.quotes[before] == after)
     return "\<BS>\<DELETE>"
   endif
 
   return "\<BS>"
 endf
 
-func! g:AutoPairReturn()
+func! s:AutoPairReturn()
   let [before, after] = s:BeforeAndAfter()
-  if (has_key(g:AutoPairs.brackets,before) && g:AutoPairs.brackets[before] == after)
+  if (has_key(s:AutoPairs.brackets,before) && s:AutoPairs.brackets[before] == after)
     return "\<CR>\<ESC>=ko"
   endif
 
@@ -236,51 +224,35 @@ func! g:AutoPairReturn()
   return "\<CR>"
 endf
 
-func! g:AutoPairMapPairs()
-  for key in keys(g:AutoPairs.brackets)
-    execute 'inoremap <buffer> <silent> '.key." <C-R>=AutoPairInsert('".key."')<CR>"
+func! s:AutoPairMapPairs()
+  for key in keys(s:AutoPairs.brackets)
+    execute 'inoremap <buffer> <silent> '.key." <C-R>=<SID>AutoPairInsert('".key."')<CR>"
   endfor
 
-  for key in keys(g:AutoPairs.quotes)
+  for key in keys(s:AutoPairs.quotes)
     let passed_key = substitute(key,"'","''",'g')
-    execute 'inoremap <buffer> <silent> '.key." <C-R>=AutoPairInsert('".passed_key."')<CR>"
+    execute 'inoremap <buffer> <silent> '.key." <C-R>=<SID>AutoPairInsert('".passed_key."')<CR>"
   endfor
 
   " Map } ] ) to skip if it's after
-  for value in values(g:AutoPairs.brackets)
-    execute 'inoremap <buffer> <silent> '.value." <C-R>=AutoPairSkip('".value."')<CR>"
+  for value in values(s:AutoPairs.brackets)
+    execute 'inoremap <buffer> <silent> '.value." <C-R>=<SID>AutoPairSkip('".value."')<CR>"
   endfor
 endf
 
-func! g:AutoPairLoad()
-  if exists("b:enable_autopair")
-    return
-  endif
-  let b:enable_autopair = 1
+"--------------------: Loading Plugin :-------------------
 
-  " Map pairs
-  call g:AutoPairMapPairs()
+func! s:AutoPairLoad()
+  call s:AutoPairMapPairs()
 
-  " Map <BS> to remove empty pairs
-  if g:AutoPairMapBS
-    execute 'inoremap <buffer> <silent> <BS> <C-R>=AutoPairDelete()<CR>'
-  endif
-
-  " Map <CR> to create indentation for brackets
-  if g:AutoPairMapCR
-    execute 'inoremap <buffer> <silent> <CR> <C-R>=AutoPairReturn()<CR>'
-  endif
+  execute 'inoremap <buffer> <silent> <BS> <C-R>=<SID>AutoPairDelete()<CR>'
+  execute 'inoremap <buffer> <silent> <CR> <C-R>=<SID>AutoPairReturn()<CR>'
 endf
 
-func! g:AutoPairLoadTags()
-  if (!g:AutoPairEnableTags || exists("b:enable_tags"))
-    return
-  endif
-  let b:enable_tags = 1
-
-  execute 'inoremap <buffer> <silent> > <C-R>=AutoPairInsertTags()<CR>'
-  execute 'inoremap <buffer> <silent> / <C-R>=AutoPairInsertSlash()<CR>'
+func! s:AutoPairLoadTags()
+  execute 'inoremap <buffer> <silent> > <C-R>=<SID>AutoPairInsertTags()<CR>'
+  execute 'inoremap <buffer> <silent> / <C-R>=<SID>AutoPairInsertSlash()<CR>'
 endf
 
-autocmd BufEnter * :call AutoPairLoad()
-autocmd BufEnter *.html :call AutoPairLoadTags()
+autocmd BufEnter * :call <SID>AutoPairLoad()
+autocmd BufEnter *.html :call <SID>AutoPairLoadTags()

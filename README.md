@@ -10,9 +10,6 @@ The simplest implementation of auto completing quotes and brackets.
     `use 'solvedbiscuit71/vim-autopair'`
 - Use other plugin manager
 
-And put this in your .vimrc
-`set smartindent`
-
 ## Usage
 
 The current content, where `|` is the cursor
@@ -55,29 +52,10 @@ foo(){
     |
 }
 ```
-
-## Option
-
-- g:AutoPairMapCR
-
-        Default: 1
-        
-        Map <CR> to insert a new indentation in case of brackets
-        set to 0 to disable
-- g:AutoPairMapBS
-
-        Default: 1
-        
-        Map <BS> to delete the brackets, quotes together if empty
-        set to 0 to disable
         
 ### Support for html tags
 
-This plugin also supports auto completion for html tags which currently works only in `*.html` files.
+This plugin also supports auto closing tags for html which only in HTML files.
 
-- g:AutoPairEnableTags
-    
-        Default: 1
-
-        Map '>' to trigger a function to auto complete the closing tags.
-        Set to 0 to disable
+* `>` triggers auto closing
+* `/` triggers auto closing as single tag i.e `<br/>`
